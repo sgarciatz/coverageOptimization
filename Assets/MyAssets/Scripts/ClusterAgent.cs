@@ -264,11 +264,18 @@ public class ClusterAgent : Agent
     public void FixedUpdate ()
     {
 
-        if (StepCount == MaxStep-1)
+        float coverage = getCoveragePercentage();
+        coverage = Mathf.Clamp(coverage * 4.0f, 0.0f, 1.0f);
+
+        if (coverage > 0.9f)
         {
-            float coverage = getCoveragePercentage();
-            coverage = Mathf.Clamp(coverage * 4.0f, 0.0f, 1.0f);
-            
+            SetReward(coverage);
+            EndEpisode();
+            return;
+        }
+
+        if (StepCount == MaxStep-1)
+        {           
             Debug.Log($"F(x) of Episode {CompletedEpisodes}: {coverage * 100.0f}%");
             SetReward(coverage);
             EndEpisode();

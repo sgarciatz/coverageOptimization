@@ -52,7 +52,7 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 1000
+  MaxStep: 100000
   movementSpeed: 20
   cluster: {fileID: 1067667140888203278}
   uavList: []
