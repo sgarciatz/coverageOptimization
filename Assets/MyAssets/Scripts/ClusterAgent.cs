@@ -177,7 +177,7 @@ public class ClusterAgent : Agent
     public override void OnActionReceived(ActionBuffers actions) 
     {
         float scale = Time.deltaTime * movementSpeed;
-        Debug.Log($"Coords UAV1: ({actions[0]},{actions[1]}), Coords UAV2: ({actions[2]},{actions[3]}), Coords UAV3: ({actions[4]},{actions[5]})");
+        Debug.Log($"Coords UAV1: ({actions.ContinuousActions[0]},{actions.ContinuousActions[1]}), Coords UAV2: ({actions.ContinuousActions[2]},{actions.ContinuousActions[3]}), Coords UAV3: ({actions.ContinuousActions[4]},{actions.ContinuousActions[5]})");
         Vector3 uav0Movement = new Vector3(actions.ContinuousActions[0], 0,  actions.ContinuousActions[1]); 
         uavList[0].transform.position += new Vector3(uav0Movement.x, 0, uav0Movement.z) * scale;
         
