@@ -120,6 +120,10 @@ public class ClusterAgent : Agent
         float coveragePercentage = getCoveragePercentage();
 
         sensor.AddObservation(coveragePercentage);
+        for (i = 0 ; i < uavList.Length ; i++)
+        {
+            sensor.AddObservation(getCoveragePercentageSingle(i));
+        }
            
     }
     
@@ -170,9 +174,50 @@ public class ClusterAgent : Agent
         }
         return ((float) heatmapAcc) / heatmapSum;  
     }
-    
-    
-    
+
+    private float getCoveragePercentageSingle(int uavId)
+    {
+        GameObject[,] cellsCoords = terrainRef.cellRefMatrix;
+        
+        int[,] heatmap = terrainRef.heatmap;
+        
+        int heatmapSum = terrainRef.getSumHeatmap();
+        int heatmapAcc = 0;
+        
+        
+        int nUAV = uavList.Length;
+        int rows = cellsCoords.GetLength(0);
+        int columns = cellsCoords.GetLength(1);
+        
+        Vector2 uavPos = new Vector2(uavList[uavId].transform.position.x, uavList[uavId].transform.position.z); 
+        
+        int i,j;
+        float distanceToUAV;
+        Vector2 auxCellCoords;
+        
+        for (i = 0; i < rows; i++)
+        {
+            for (j = 0; j < columns; j++)
+            {
+                // If the distance between an UAV and a cell is lower than x, then add h to heatmapAcc
+                
+                auxCellCoords = new Vector2(cellsCoords[i,j].transform.position.x, cellsCoords[i,j].transform.position.z);
+                
+                distanceToUAV = Vector2.Distance(auxCellCoords, uavPos); 
+
+                if (distanceToUAV <= 12.0f)
+                {
+                    heatmapAcc += heatmap[i,j];
+                }
+            }
+        }
+        
+        if (StepCount % 1000 == 0) 
+        {
+            Debug.Log($"Coverage of step {StepCount}: {heatmapAcc} de {heatmapSum} ({((float)heatmapAcc)/heatmapSum}%)");
+        }
+        return ((float) heatmapAcc) / heatmapSum;  
+    } 
     
     public override void OnActionReceived(ActionBuffers actions) 
     {
