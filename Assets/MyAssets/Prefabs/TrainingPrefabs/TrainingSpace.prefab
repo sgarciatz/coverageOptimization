@@ -260,13 +260,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4976f2b50186fdecc866c1f3bf24eda3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  entity: {fileID: 7521311012207922230, guid: a459173293483a60dbda456d3c46687c, type: 3}
+  entity1: {fileID: 7521311012207922230, guid: a459173293483a60dbda456d3c46687c, type: 3}
+  entity2: {fileID: 7521311012207922230, guid: 5f4b1ffb158dbe12db69d9cc04f29df1, type: 3}
   maxX: 0
   minX: 0
   maxZ: 0
   minZ: 0
-  entity1: {fileID: 0}
-  entity2: {fileID: 0}
 --- !u!1 &4045816240708144847
 GameObject:
   m_ObjectHideFlags: 0

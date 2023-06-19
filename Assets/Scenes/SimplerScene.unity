@@ -292,7 +292,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4881704669005475061, guid: c8c292a39092e4e64a54e38516f30dc7, type: 3}
       propertyPath: MaxStep
-      value: 5000
+      value: 30000
       objectReference: {fileID: 0}
     - target: {fileID: 4881704669005475061, guid: c8c292a39092e4e64a54e38516f30dc7, type: 3}
       propertyPath: trainingSpace
@@ -345,7 +345,7 @@ PrefabInstance:
     - target: {fileID: 8232188136437200182, guid: c8c292a39092e4e64a54e38516f30dc7, type: 3}
       propertyPath: m_Model
       value: 
-      objectReference: {fileID: 5022602860645237092, guid: 8f01476d4b5ee7603b6f415dd7a67a74, type: 3}
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

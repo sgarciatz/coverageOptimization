@@ -46,16 +46,31 @@ public class AgentUAV : Agent
     {
         Vector3 movement = new Vector3(actions.ContinuousActions[0], 0 , actions.ContinuousActions[1]);
         gameObject.transform.position += movement ;
-        
-        
-        
-        if (StepCount == MaxStep) //If end
+
+        float reward = 0;  
+        if (StepCount == MaxStep || calcCoverage() > 0.5f) //If end
         {
             float coverage = calcCoverage();
             
-            float reward = coverage == 0.0f ? -1.0f : coverage/maxCoverage;
+            reward = coverage == 0.0f ? -1.0f : coverage/maxCoverage;
+            reward -= StepCount*0.0001f *movement.magnitude;
             SetReward(reward);
+            
+            if(movement.magnitude == 0f)
+            {
+                SetReward(1f); 
+                EndEpisode();   
+            } 
+
+            Debug.Log($"Cov: {calcCoverage()} -- Reward: {reward} -- Step: {StepCount} -- Mov: {movement.magnitude}");
         }
+        else
+        {
+            SetReward(-1f*0.00001f*StepCount);
+        }
+        //if (movement.magnitude > 0.05f) reward -= 0.1f;
+
+        //SetReward(reward);
     }
     
 
@@ -64,7 +79,7 @@ public class AgentUAV : Agent
     {
         gameObject.transform.position = new Vector3(0.0f, 0.0f, 0.0f);
         objectiveSpawnerRef.move();
-        maxCoverage = calcMaxCoverage();
+        maxCoverage = 1; //calcMaxCoverage();
         detectCollisionRef.collidedEntities.Clear();
     }
     
@@ -95,13 +110,13 @@ public class AgentUAV : Agent
         float reward = coverage/maxCoverage;
 
 
-        Debug.Log($"(Ep: {CompletedEpisodes}) A player has entered in the coverage area of the UAV, reward = {reward} ({coverage}/{maxCoverage}");
+        //Debug.Log($"(Ep: {CompletedEpisodes}) A player has entered in the coverage area of the UAV, reward = {reward} ({coverage}/{maxCoverage}");
         
-        if (coverage == maxCoverage)
-        {
-            SetReward(1.0f);
-            EndEpisode();
-        }
+        // if (coverage == maxCoverage)
+        // {
+        //     SetReward(1.0f);
+        //     EndEpisode();
+        // }
     }
     
     
@@ -113,7 +128,7 @@ public class AgentUAV : Agent
         float coverage = calcCoverage();
         
         float reward = coverage/maxCoverage;
-        SetReward(reward);
+        //SetReward(reward);
         Debug.Log($"(Ep: {CompletedEpisodes}) A player has exited the coverage area of the UAV, reward = {reward} ({coverage}/{maxCoverage} ");
     }
     
@@ -159,20 +174,18 @@ public class AgentUAV : Agent
     }
     
     private float calcCoverage()
-    {
-        List<GameObject> collidedEntities = detectCollisionRef.collidedEntities;
-        
+    {        
         List<(GameObject entityGameObjRef, float weight)> targets = objectiveSpawnerRef.entities;
         
-        List<(GameObject entityGameObjRef, float weight)> collidedEntitiesWithWeights = new List<(GameObject entityGameObjRef, float weight)>();
         int index = -1;
         float acc = 0;
         foreach((GameObject entityGameObjRef, float weight) entity in targets)
         {
-            index = collidedEntities.IndexOf(entity.entityGameObjRef);
-            if (index != -1)
+            Vector2 personPos = new Vector2(entity.entityGameObjRef.transform.position.x, entity.entityGameObjRef.transform.position.z);
+            Vector2 uavPos = new Vector2(gameObject.transform.position.x, gameObject.transform.position.z);
+            if(Vector2.Distance(personPos, uavPos) < coverageRadius)
             {
-                acc += targets[index].weight;
+                acc += entity.weight;
             }
         }
         
