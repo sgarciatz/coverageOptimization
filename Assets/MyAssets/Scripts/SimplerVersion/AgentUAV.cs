@@ -53,24 +53,13 @@ public class AgentUAV : Agent
             float coverage = calcCoverage();
             
             reward = coverage == 0.0f ? -1.0f : coverage/maxCoverage;
-            reward -= StepCount*0.0001f *movement.magnitude;
-            SetReward(reward);
-            
-            if(movement.magnitude == 0f)
-            {
-                SetReward(1f); 
-                EndEpisode();   
-            } 
+            reward -= StepCount*0.0001f;
+            SetReward(reward); 
+            EndEpisode();   
 
-            Debug.Log($"Cov: {calcCoverage()} -- Reward: {reward} -- Step: {StepCount} -- Mov: {movement.magnitude}");
+            Debug.Log($"Cov: {calcCoverage()} -- Reward: {reward} -- Step: {StepCount}");
         }
-        else
-        {
-            SetReward(-1f*0.00001f*StepCount);
-        }
-        //if (movement.magnitude > 0.05f) reward -= 0.1f;
 
-        //SetReward(reward);
     }
     
 

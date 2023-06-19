@@ -1,0 +1,65 @@
+{
+    "CoverageSimple": {
+        "checkpoints": [
+            {
+                "steps": 3499999,
+                "file_path": "/home/jose/unityRequirements/results/run_000/CoverageSimple/CoverageSimple-3499999.onnx",
+                "reward": 0.7703910360406666,
+                "creation_time": 1687207566.6185026,
+                "auxillary_file_paths": [
+                    "/home/jose/unityRequirements/results/run_000/CoverageSimple/CoverageSimple-3499999.pt"
+                ]
+            },
+            {
+                "steps": 3999999,
+                "file_path": "/home/jose/unityRequirements/results/run_000/CoverageSimple/CoverageSimple-3999999.onnx",
+                "reward": 0.771543583645743,
+                "creation_time": 1687208855.081876,
+                "auxillary_file_paths": [
+                    "/home/jose/unityRequirements/results/run_000/CoverageSimple/CoverageSimple-3999999.pt"
+                ]
+            },
+            {
+                "steps": 4499994,
+                "file_path": "/home/jose/unityRequirements/results/run_000/CoverageSimple/CoverageSimple-4499994.onnx",
+                "reward": 0.775494547052817,
+                "creation_time": 1687210193.1828158,
+                "auxillary_file_paths": [
+                    "/home/jose/unityRequirements/results/run_000/CoverageSimple/CoverageSimple-4499994.pt"
+                ]
+            },
+            {
+                "steps": 4999991,
+                "file_path": "/home/jose/unityRequirements/results/run_000/CoverageSimple/CoverageSimple-4999991.onnx",
+                "reward": 0.7720747607336149,
+                "creation_time": 1687211530.1514876,
+                "auxillary_file_paths": [
+                    "/home/jose/unityRequirements/results/run_000/CoverageSimple/CoverageSimple-4999991.pt"
+                ]
+            },
+            {
+                "steps": 5000001,
+                "file_path": "/home/jose/unityRequirements/results/run_000/CoverageSimple/CoverageSimple-5000001.onnx",
+                "reward": 0.772059912118519,
+                "creation_time": 1687211530.1831093,
+                "auxillary_file_paths": [
+                    "/home/jose/unityRequirements/results/run_000/CoverageSimple/CoverageSimple-5000001.pt"
+                ]
+            }
+        ],
+        "final_checkpoint": {
+            "steps": 5000001,
+            "file_path": "/home/jose/unityRequirements/results/run_000/CoverageSimple.onnx",
+            "reward": 0.772059912118519,
+            "creation_time": 1687211530.1831093,
+            "auxillary_file_paths": [
+                "/home/jose/unityRequirements/results/run_000/CoverageSimple/CoverageSimple-5000001.pt"
+            ]
+        }
+    },
+    "metadata": {
+        "stats_format_version": "0.3.0",
+        "mlagents_version": "0.30.0",
+        "torch_version": "1.11.0+cu102"
+    }
+}
