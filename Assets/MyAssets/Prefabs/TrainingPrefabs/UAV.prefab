@@ -52,9 +52,9 @@ MonoBehaviour:
     VectorObservationSize: 6
     NumStackedVectorObservations: 1
     m_ActionSpec:
-      m_NumContinuousActions: 2
+      m_NumContinuousActions: 3
       BranchSizes: 
-    VectorActionSize: 02000000
+    VectorActionSize: 03000000
     VectorActionDescriptions: []
     VectorActionSpaceType: 1
     hasUpgradedBrainParametersWithActionSpec: 1
@@ -81,11 +81,13 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 10000
-  movementSpeed: 0
-  coverageRadius: 0
-  trainingSpace: {fileID: 0}
+  MaxStep: 2000
+  movementSpeed: 20
+  coverageRadius: 5
   objectiveSpawnerRef: {fileID: 0}
+  stepCoverageAcc: 0
+  stepMovementAcc: 0
+  alpha: 0.85
 --- !u!114 &9135753625719831434
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -220,7 +222,6 @@ GameObject:
   - component: {fileID: 7483714283989863080}
   - component: {fileID: 5461598810025389025}
   - component: {fileID: 4354598335622817899}
-  - component: {fileID: 649359978115874411}
   m_Layer: 0
   m_Name: Coverage
   m_TagString: CoverageArea
@@ -313,9 +314,9 @@ CapsuleCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.5000001
-  m_Height: 2
+  m_Height: 50.000008
   m_Direction: 1
-  m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
+  m_Center: {x: 0.000000047683717, y: -0.0000333786, z: -0.00000009536743}
 --- !u!54 &4354598335622817899
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -343,16 +344,3 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &649359978115874411
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4299550311509873424}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3ea3cd16fab0e2ae5b32a8b0a48f3e90, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  agentScript: {fileID: 0}

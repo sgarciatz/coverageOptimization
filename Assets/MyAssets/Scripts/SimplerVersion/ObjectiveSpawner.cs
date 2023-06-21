@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class ObjectiveSpawner : MonoBehaviour
 {
-    [SerializeField, Tooltip("Entity to spawn")]    GameObject entity;
+    [SerializeField, Tooltip("Entity to spawn")]    GameObject entity1;
+    [SerializeField, Tooltip("Entity to spawn")]    GameObject entity2;    
     [SerializeField, Tooltip("Maximun value of x")] public float maxX;
     [SerializeField, Tooltip("Minimun value of x")] public float minX;
     [SerializeField, Tooltip("Maximun value of z")] public float maxZ;
@@ -30,12 +31,12 @@ public class ObjectiveSpawner : MonoBehaviour
     public void spawn() 
     {
         Vector3 entityPos = new Vector3(Random.Range(minX, maxX), 0.5f, Random.Range(minZ, maxZ));
-        (GameObject entityGameObjRef, float weight) newEntity = (Instantiate(entity, entityPos, Quaternion.identity), 0.75f);
+        (GameObject entityGameObjRef, float weight) newEntity = (Instantiate(entity1, entityPos, Quaternion.identity), 0.75f);
         entities.Add(newEntity);
         
         Vector3 secondEntityPos = new Vector3(Random.Range(entityPos.x + 5.0f, entityPos.x - 5.0f), 0.5f, Random.Range(entityPos.z + 5.0f, entityPos.z - 5.0f) );
         //Vector3 secondEntityPos = new Vector3(Random.Range(minX, maxX), 0.5f, Random.Range(minZ, maxZ));
-        (GameObject entityGameObjRef, float weight) secondNewEntity = (Instantiate(entity, secondEntityPos, Quaternion.identity), 0.25f);
+        (GameObject entityGameObjRef, float weight) secondNewEntity = (Instantiate(entity2, secondEntityPos, Quaternion.identity), 0.25f);
         entities.Add(secondNewEntity);
     }
     

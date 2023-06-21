@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.37311926, g: 0.38073996, b: 0.35872683, a: 1}
+  m_IndirectSpecularColor: {r: 0.43748936, g: 0.48531073, b: 0.5655848, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -139,7 +139,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!108 &103652783
 Light:
   m_ObjectHideFlags: 0
@@ -209,14 +209,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 103652782}
-  m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
+  m_LocalRotation: {x: 0.6427876, y: 0, z: 0, w: 0.7660445}
   m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+  m_LocalEulerAnglesHint: {x: 80, y: 0, z: 0}
 --- !u!1001 &525195175
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -291,13 +291,9 @@ PrefabInstance:
       value: UAV
       objectReference: {fileID: 0}
     - target: {fileID: 4881704669005475061, guid: c8c292a39092e4e64a54e38516f30dc7, type: 3}
-      propertyPath: MaxStep
-      value: 5000
-      objectReference: {fileID: 0}
-    - target: {fileID: 4881704669005475061, guid: c8c292a39092e4e64a54e38516f30dc7, type: 3}
-      propertyPath: trainingSpace
+      propertyPath: objectiveSpawnerRef
       value: 
-      objectReference: {fileID: 1723035285}
+      objectReference: {fileID: 1723035288}
     - target: {fileID: 5869334888038505349, guid: c8c292a39092e4e64a54e38516f30dc7, type: 3}
       propertyPath: m_RootOrder
       value: 2
@@ -345,17 +341,23 @@ PrefabInstance:
     - target: {fileID: 8232188136437200182, guid: c8c292a39092e4e64a54e38516f30dc7, type: 3}
       propertyPath: m_Model
       value: 
-      objectReference: {fileID: 5022602860645237092, guid: 8f01476d4b5ee7603b6f415dd7a67a74, type: 3}
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c8c292a39092e4e64a54e38516f30dc7, type: 3}
---- !u!1 &1723035285 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3057071004712114748, guid: ce6593197dd4e980d9adc7164b6a8bf5, type: 3}
+--- !u!114 &1723035288 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2874232562236552230, guid: ce6593197dd4e980d9adc7164b6a8bf5, type: 3}
   m_PrefabInstance: {fileID: 525195175}
   m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4976f2b50186fdecc866c1f3bf24eda3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1816755113
 GameObject:
   m_ObjectHideFlags: 0
@@ -440,11 +442,11 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1816755113}
-  m_LocalRotation: {x: 0.4169845, y: -0, z: -0, w: 0.9089136}
-  m_LocalPosition: {x: 0.1, y: 23.44, z: -28.75}
+  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 50, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 49.289, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}

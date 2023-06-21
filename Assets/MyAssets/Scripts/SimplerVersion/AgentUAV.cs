@@ -8,24 +8,36 @@ using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
 
+
 public class AgentUAV : Agent
 {
     
-    [SerializeField, Tooltip("Movement speed of the UAV")]       private float movementSpeed = 1000f;
+    [SerializeField, Tooltip("Movement speed of the UAV")]       private float movementSpeed = 10.0f;
     [SerializeField, Tooltip("Coverage radius of the UAV")]      private float coverageRadius;
-    [SerializeField, Tooltip("Reference to The Training Space")] private GameObject trainingSpace;
+
+    // References to other scripts
     [SerializeField, Tooltip("ObjectiveSpawner of the TrainingSpace")] private ObjectiveSpawner objectiveSpawnerRef;
-    [SerializeField, Tooltip("DetectCollision script reference")] private DetectCollision detectCollisionRef; 
     
-    [SerializeField, Tooltip("Current Episode max coverage")] private float maxCoverage; 
-    public void Start()
+    
+    // Training related fields
+    [SerializeField, Tooltip("Current Episode step coverage accumulator")] private float stepCoverageAcc; 
+    [SerializeField, Tooltip("Current Episode movement magnidude accumulator")] private float stepMovementAcc;
+    [SerializeField, Tooltip("Alpha value, it specifies the importance of the movement and the coverage during the training phase")] private float alpha = 0.85f;
+    [SerializeField, Tooltip("Magnitude Threshold, acts like a low pass filter.")] private float threshold = 0.2f;
+    public void Start() 
     {
         coverageRadius = gameObject.transform.Find("Coverage").gameObject.transform.localScale.x / 2.0f;
-        
-        objectiveSpawnerRef = trainingSpace.GetComponent<ObjectiveSpawner>();
-        detectCollisionRef = GetComponentInChildren<DetectCollision>(true);
     }
     
+    // On each episode, reset stepCoverageAcc, stepMovementAcc and generate new positions for users    
+    public override void OnEpisodeBegin() 
+    {
+        objectiveSpawnerRef.move();
+        stepCoverageAcc = 0.0f; 
+        stepMovementAcc = 0.0f;
+    }
+    
+    // The observations are the positions of the agents and targets
     public override void CollectObservations(VectorSensor sensor) 
     {
         
@@ -42,140 +54,110 @@ public class AgentUAV : Agent
 
     }
     
+    
+    // The actions specifies the movement of the UAV
+    // After the movement is carried out, the boundaries must be
+    // checked and the coverage has to be calculated.    
     public override void OnActionReceived(ActionBuffers actions) 
     {
-        Vector3 movement = new Vector3(actions.ContinuousActions[0], 0 , actions.ContinuousActions[1]);
-        gameObject.transform.position += movement ;
+        //Move the drone
+        // First, calc the magnitude of the movement
+        float magnitude = (actions.ContinuousActions[2] + 1.0f) / (2.0f);
+        
+        //Apply threshold to magnitude 
+        magnitude = magnitude < threshold? 0.0f : magnitude;
+        
+        Vector3 direction = Vector3.Normalize(new Vector3(actions.ContinuousActions[0], 0 , actions.ContinuousActions[1]));
+        Vector3 movement = direction * magnitude * Time.deltaTime * movementSpeed;
+        
+        gameObject.transform.position += movement;
         
         
-        
-        if (StepCount == MaxStep) //If end
+        //Check if it is outside the boundaries of the map
+        if (IsDroneOutsideBoundaries() == true) 
         {
-            float coverage = calcCoverage();
-            
-            float reward = coverage == 0.0f ? -1.0f : coverage/maxCoverage;
+            float coverage           = stepCoverageAcc / MaxStep;
+            float distance           = stepMovementAcc / StepCount;
+            float outOfBoundsPenalty = -1.0f;// * ( 1.0f - ((float)StepCount / (float)MaxStep)); 
+            float reward             = outOfBoundsPenalty + (alpha * coverage) + ((1-alpha) * (1 - distance));
+            Debug.LogWarning($"(Ep: {CompletedEpisodes}) UAV has exited the Training Area (step: {StepCount}), setting negative reward {reward} based on: \n\t outOfBoundsPenalty: {outOfBoundsPenalty} \tcoverage: {coverage} \tdistance: {distance} ");
             SetReward(reward);
-        }
-    }
-    
-
-    
-    public override void OnEpisodeBegin() 
-    {
-        gameObject.transform.position = new Vector3(0.0f, 0.0f, 0.0f);
-        objectiveSpawnerRef.move();
-        maxCoverage = calcMaxCoverage();
-        detectCollisionRef.collidedEntities.Clear();
-    }
-    
-    
-    //Check for events
-    public void FixedUpdate()
-    {
-        if  (gameObject.transform.position.x > objectiveSpawnerRef.maxX ||
-             gameObject.transform.position.x < objectiveSpawnerRef.minX ||
-             gameObject.transform.position.z > objectiveSpawnerRef.maxZ ||
-             gameObject.transform.position.z < objectiveSpawnerRef.minZ)
-        {
-            Debug.Log($"The UAV has exited the Training Area, adding negative reward (Ep: {CompletedEpisodes})");
-            SetReward(-1.0f);
             EndEpisode();
+            gameObject.transform.position = new Vector3(0.0f, 0.0f, 0.0f);
+            return;
         }
-    }
-    
-    
-    //
-    public void collisionDetected()
-    {
 
+        float currentStepCoverage   = getCoverage();
+        stepCoverageAcc += currentStepCoverage; 
+        stepMovementAcc += magnitude;
         
-        //Calcule reward
-        float coverage = calcCoverage();
-        
-        float reward = coverage/maxCoverage;
-
-
-        Debug.Log($"(Ep: {CompletedEpisodes}) A player has entered in the coverage area of the UAV, reward = {reward} ({coverage}/{maxCoverage}");
-        
-        if (coverage == maxCoverage)
+        if (currentStepCoverage > 0.0f)
         {
-            SetReward(1.0f);
-            EndEpisode();
+            AddReward(currentStepCoverage/(float)MaxStep);
         }
-    }
-    
-    
-    public void collisionStopped()
-    {
-    
-
-        //Calcule reward
-        float coverage = calcCoverage();
-        
-        float reward = coverage/maxCoverage;
-        SetReward(reward);
-        Debug.Log($"(Ep: {CompletedEpisodes}) A player has exited the coverage area of the UAV, reward = {reward} ({coverage}/{maxCoverage} ");
-    }
-    
-    private Vector2 normalizePosition(Vector2 pos)
-    {
-        float dimX = objectiveSpawnerRef.maxX - objectiveSpawnerRef.minX;
-        float dimZ = objectiveSpawnerRef.maxZ - objectiveSpawnerRef.minZ;
-        
-        float normalizedX = ((pos.x - objectiveSpawnerRef.minX) / (objectiveSpawnerRef.maxX - objectiveSpawnerRef.minX)) / dimX;
-        float normalizedZ = ((pos.y - objectiveSpawnerRef.minZ) / (objectiveSpawnerRef.maxZ - objectiveSpawnerRef.minZ)) / dimZ;
-        
-        return  new Vector2(normalizedX, normalizedZ);
-    }
-
-
-    private float calcMaxCoverage()
-    {
-        List<(GameObject entityGameObjRef, float weight)> targets = objectiveSpawnerRef.entities;
-        Vector2 posTarget1, posTarget2;
-        float best = 0.0f;
-        float acc;
-        foreach ((GameObject entityGameObjRef, float weight) target1 in targets)
+        else
         {
-            acc = target1.weight;
-            foreach ((GameObject entityGameObjRef, float weight) target2 in targets.Except(new List<(GameObject entityGameObjRef, float weight)>{target1}))
-            {
-                posTarget1 = new Vector2(target1.entityGameObjRef.transform.position.x, target1.entityGameObjRef.transform.position.z);
-                posTarget2 = new Vector2(target2.entityGameObjRef.transform.position.x, target2.entityGameObjRef.transform.position.z);
+            AddReward(-1.0f/(float)MaxStep);
+        }
+        
+        if(StepCount % 500 == 0) Debug.Log($"(Ep: {CompletedEpisodes}, Step: {StepCount}) Relative Accumulated Coverage = {stepCoverageAcc / StepCount}%  \t\t  Relative Cumulative Travel Distance =  {stepMovementAcc / (StepCount)}% ");  
                 
-                if (Mathf.Abs(Vector2.Distance(posTarget1, posTarget2)) < coverageRadius * 2)
-                {
-                    acc += target2.weight;
-                }
-            }
-            
-            if ( acc > best) 
-            {
-                best = acc;
-            }
+        //Final Step reward
+        if(StepCount == MaxStep)
+        {
+            float coverage = stepCoverageAcc / MaxStep;
+            float distance = stepMovementAcc / MaxStep;
+            float reward = (alpha * coverage) + ((1-alpha) * (1 - distance));
+            SetReward(reward);
+            Debug.Log($"Episode {CompletedEpisodes} Completed, REWARD -> {reward}");
         }
-        Debug.Log($"Best coverage obtainable: {best}");
-        return best;
+
+    }
+          
+    private bool IsDroneOutsideBoundaries()
+    {
+        if  (gameObject.transform.position.x > objectiveSpawnerRef.maxX + 15 ||
+             gameObject.transform.position.x < objectiveSpawnerRef.minX - 15 ||
+             gameObject.transform.position.z > objectiveSpawnerRef.maxZ + 15 ||
+             gameObject.transform.position.z < objectiveSpawnerRef.minZ - 15)
+        {
+            return true;
+        } 
+        else
+        {
+            return false;
+            
+        }
     }
     
-    private float calcCoverage()
+    private float getCoverage()
     {
-        List<GameObject> collidedEntities = detectCollisionRef.collidedEntities;
-        
         List<(GameObject entityGameObjRef, float weight)> targets = objectiveSpawnerRef.entities;
-        
-        List<(GameObject entityGameObjRef, float weight)> collidedEntitiesWithWeights = new List<(GameObject entityGameObjRef, float weight)>();
-        int index = -1;
-        float acc = 0;
-        foreach((GameObject entityGameObjRef, float weight) entity in targets)
+        Vector2 uavPosition   = new Vector2(gameObject.transform.position.x, gameObject.transform.position.z);
+        Vector2 targetPosition;
+        float distance;
+        float acc = 0.0f;
+
+        foreach ( (GameObject entityGameObjRef, float weight) target in targets)
         {
-            index = collidedEntities.IndexOf(entity.entityGameObjRef);
-            if (index != -1)
+            targetPosition = new Vector2(target.entityGameObjRef.transform.position.x, target.entityGameObjRef.transform.position.z);
+            
+            distance = Vector2.Distance(uavPosition, targetPosition);
+            if( distance < coverageRadius) 
             {
-                acc += targets[index].weight;
+                acc += target.weight;
             }
         }
         
         return acc;
+    }
+    
+    
+    private Vector2 normalizePosition(Vector2 pos)
+    {       
+        float normalizedX = ((pos.x - objectiveSpawnerRef.minX) / (objectiveSpawnerRef.maxX - objectiveSpawnerRef.minX));
+        float normalizedZ = ((pos.y - objectiveSpawnerRef.minZ) / (objectiveSpawnerRef.maxZ - objectiveSpawnerRef.minZ));
+        
+        return  new Vector2(normalizedX, normalizedZ);
     }
 }
