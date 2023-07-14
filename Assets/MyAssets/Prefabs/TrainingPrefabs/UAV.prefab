@@ -86,6 +86,9 @@ MonoBehaviour:
   coverageRadius: 0
   trainingSpace: {fileID: 0}
   objectiveSpawnerRef: {fileID: 0}
+  detectCollisionRef: {fileID: 0}
+  maxCoverage: 0
+  pointEntity: {fileID: 5798851712454838030, guid: ea143ab560edff1d9ac7bd12dd2a4270, type: 3}
 --- !u!114 &9135753625719831434
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -356,3 +359,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   agentScript: {fileID: 0}
+  collidedEntities: []

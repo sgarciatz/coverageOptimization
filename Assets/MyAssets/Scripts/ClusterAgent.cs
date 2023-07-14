@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+using System.Linq;
+
 //ML-Agents imports
 using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
@@ -18,13 +20,16 @@ public class ClusterAgent : Agent
     [Tooltip("Terrain's reference")] public TerrainHeatmap terrainRef;
     
     
-    [Tooltip("Radius of the coverage area")] public float coverageRadius = 25.0f;
+    [Tooltip("Radius of the coverage area")] public float coverageRadius = 12.5f;
     
     [Tooltip("Upper boundary ")] public float maxX= 40; 
     [Tooltip("Lower boundary ")] public float minX= -40; 
     
     [Tooltip("Left boundary ")] public float maxZ= 40; 
     [Tooltip("Right boundary ")] public float minZ= -40; 
+
+    [SerializeField, Tooltip("Refence point")] private GameObject pointEntity = null;
+    [SerializeField, Tooltip("Refence point2")] private GameObject pointCentroid = null;
 
     // Start is called before the first frame update
     void Start()
@@ -168,10 +173,10 @@ public class ClusterAgent : Agent
             }
         }
         
-        if (StepCount % 1000 == 0) 
-        {
-            Debug.Log($"Coverage of step {StepCount}: {heatmapAcc} de {heatmapSum} ({((float)heatmapAcc)/heatmapSum}%)");
-        }
+        // if (StepCount % 1000 == 0) 
+        // {
+        //     Debug.Log($"Coverage of step {StepCount}: {heatmapAcc} de {heatmapSum} ({((float)heatmapAcc)/heatmapSum}%)");
+        // }
         return ((float) heatmapAcc) / heatmapSum;  
     }
 
@@ -212,17 +217,17 @@ public class ClusterAgent : Agent
             }
         }
         
-        if (StepCount % 1000 == 0) 
-        {
-            Debug.Log($"Coverage of step {StepCount}: {heatmapAcc} de {heatmapSum} ({((float)heatmapAcc)/heatmapSum}%)");
-        }
+        // if (StepCount % 1000 == 0) 
+        // {
+        //     Debug.Log($"Coverage of step {StepCount}: {heatmapAcc} de {heatmapSum} ({((float)heatmapAcc)/heatmapSum}%)");
+        // }
         return ((float) heatmapAcc) / heatmapSum;  
     } 
     
     public override void OnActionReceived(ActionBuffers actions) 
     {
         float scale = Time.deltaTime * movementSpeed;
-        Debug.Log($"Coords UAV1: ({actions.ContinuousActions[0]},{actions.ContinuousActions[1]}), Coords UAV2: ({actions.ContinuousActions[2]},{actions.ContinuousActions[3]}), Coords UAV3: ({actions.ContinuousActions[4]},{actions.ContinuousActions[5]})");
+        //Debug.Log($"Coords UAV1: ({actions.ContinuousActions[0]},{actions.ContinuousActions[1]}), Coords UAV2: ({actions.ContinuousActions[2]},{actions.ContinuousActions[3]}), Coords UAV3: ({actions.ContinuousActions[4]},{actions.ContinuousActions[5]})");
         Vector3 uav0Movement = new Vector3(actions.ContinuousActions[0], 0,  actions.ContinuousActions[1]); 
         uavList[0].transform.position += new Vector3(uav0Movement.x, 0, uav0Movement.z) * scale;
         
@@ -239,6 +244,11 @@ public class ClusterAgent : Agent
     /// </summary>
     public override void OnEpisodeBegin() 
     {
+        if (pointEntity != null)
+        {
+            Destroy(pointCentroid, 1.0f);
+        }
+        terrainRef.peopleRefs.Clear();
         // Generate new Heatmap
         terrainRef.generateNewHeatmap();
         
@@ -258,8 +268,50 @@ public class ClusterAgent : Agent
         uavList[2].transform.position = new Vector3(Random.Range(maxX-10.0f, minX-10.0f), 20,  Random.Range(maxZ-10.0f, minZ-10.0f));
         } while (Vector3.Distance(uavList[0].transform.position, uavList[2].transform.position) < 5.0f || 
                  Vector3.Distance(uavList[1].transform.position, uavList[2].transform.position) < 5.0f);
+	
+        Centroid();
+    }
+
+    static Vector2 CalculateCentroid(List<Vector2> points)
+    {
+        float sumX = 0;
+        float sumY = 0;
+
+        foreach (Vector2 point in points)
+        {
+            sumX += point.x;
+            sumY += point.y;
+        }
+
+        float centroidX = sumX / points.Count;
+        float centroidY = sumY / points.Count;
+
+        return new Vector2(centroidX, centroidY);
     }
  
+     //Convexed Hull
+    public void Centroid()
+    {   
+        List<Vector2> points = new List<Vector2>();
+        foreach (GameObject entity in terrainRef.peopleRefs)
+        {
+            points.Add(new Vector2(entity.transform.position.x, entity.transform.position.z));
+        }
+        Vector2 convexHull = CalculateCentroid(points);
+        points = points.OrderBy(v => Vector2.Distance(v, convexHull)).ToList();
+        Vector2 farthest = points[points.Count - 1];
+        Debug.Log(Vector2.Distance(convexHull, farthest));
+        while(Vector2.Distance(convexHull, farthest) > 12.5f)
+        {
+            points.RemoveAt(points.Count - 1);
+            Debug.Log(Vector2.Distance(convexHull, farthest));
+            convexHull = CalculateCentroid(points);
+            points = points.OrderBy(v => Vector2.Distance(v, convexHull)).ToList();
+            farthest = points[points.Count - 1];
+        }
+        pointCentroid = Instantiate(pointEntity, new Vector3(convexHull.x, 1, convexHull.y), Quaternion.identity);
+
+    }
  
     public void FixedUpdate ()
     {
@@ -280,7 +332,7 @@ public class ClusterAgent : Agent
         {           
             float coverage = getCoveragePercentage();
             coverage = Mathf.Clamp(coverage * 4.0f, 0.0f, 1.0f);
-            Debug.Log($"F(x) of Episode {CompletedEpisodes}: {coverage * 100.0f}%");
+            //Debug.Log($"F(x) of Episode {CompletedEpisodes}: {coverage * 100.0f}%");
             SetReward(coverage);
             EndEpisode();
             return;

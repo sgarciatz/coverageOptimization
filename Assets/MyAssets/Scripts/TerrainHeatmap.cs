@@ -98,7 +98,7 @@ public class TerrainHeatmap : MonoBehaviour
                     Vector3 cellPos = cellRefMatrix[i,j].transform.position;
                     for (k = 0; k < heatmap[i,j]; k++) 
                     {
-                        //Instantiate(person, cellPos + positions[k], Quaternion.identity);
+                        peopleRefs.Add(Instantiate(person, cellPos + positions[k], Quaternion.identity));
                     }
                 }
 

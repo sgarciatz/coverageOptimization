@@ -62,6 +62,7 @@ MonoBehaviour:
   minX: -40
   maxZ: 40
   minZ: -40
+  pointEntity: {fileID: 5798851712454838030, guid: ea143ab560edff1d9ac7bd12dd2a4270, type: 3}
 --- !u!114 &6240635512881298296
 MonoBehaviour:
   m_ObjectHideFlags: 0

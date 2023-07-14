@@ -18,6 +18,9 @@ public class AgentUAV : Agent
     [SerializeField, Tooltip("DetectCollision script reference")] private DetectCollision detectCollisionRef; 
     
     [SerializeField, Tooltip("Current Episode max coverage")] private float maxCoverage; 
+
+    [SerializeField, Tooltip("Refence point")] private GameObject pointEntity;
+
     public void Start()
     {
         coverageRadius = gameObject.transform.Find("Coverage").gameObject.transform.localScale.x / 2.0f;
@@ -54,22 +57,31 @@ public class AgentUAV : Agent
             
             reward = coverage == 0.0f ? -1.0f : coverage/maxCoverage;
             reward -= StepCount*0.0001f;
-            SetReward(reward); 
+            SetReward(reward);
+            
             EndEpisode();   
 
             Debug.Log($"Cov: {calcCoverage()} -- Reward: {reward} -- Step: {StepCount}");
         }
+        else
+        {
+            reward -= StepCount*0.0001f;
+            SetReward(reward); 
+        }
 
     }
     
-
-    
     public override void OnEpisodeBegin() 
     {
+        if (pointEntity != null)
+        {
+            Destroy(pointEntity);
+        }
         gameObject.transform.position = new Vector3(0.0f, 0.0f, 0.0f);
         objectiveSpawnerRef.move();
         maxCoverage = 1; //calcMaxCoverage();
         detectCollisionRef.collidedEntities.Clear();
+        Graham();
     }
     
     
@@ -86,6 +98,39 @@ public class AgentUAV : Agent
             EndEpisode();
         }
     }
+
+
+    static Vector2 CalculateCentroid(List<Vector2> points)
+    {
+        float sumX = 0;
+        float sumY = 0;
+
+        foreach (Vector2 point in points)
+        {
+            sumX += point.x;
+            sumY += point.y;
+        }
+
+        float centroidX = sumX / points.Count;
+        float centroidY = sumY / points.Count;
+
+        return new Vector2(centroidX, centroidY);
+    }
+
+    //Convexed Hull
+    public void Graham()
+    {   
+        List<Vector2> points = new List<Vector2>();
+        foreach ((GameObject entityGameObjRef, float weight) entity in objectiveSpawnerRef.entities)
+        {
+            points.Add(new Vector2(entity.entityGameObjRef.transform.position.x, entity.entityGameObjRef.transform.position.z));
+        }
+
+        Vector2 convexHull = CalculateCentroid(points);
+        
+        Instantiate(pointEntity, new Vector3(convexHull.x, 1, convexHull.y), Quaternion.identity);
+    }
+
     
     
     //
