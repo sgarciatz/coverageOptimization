@@ -23,7 +23,11 @@ public class AgentUAV : Agent
     [SerializeField, Tooltip("Current Episode step coverage accumulator")] private float stepCoverageAcc; 
     [SerializeField, Tooltip("Current Episode movement magnidude accumulator")] private float stepMovementAcc;
     [SerializeField, Tooltip("Alpha value, it specifies the importance of the movement and the coverage during the training phase")] private float alpha = 0.85f;
-    [SerializeField, Tooltip("Magnitude Threshold, acts like a low pass filter.")] private float threshold = 0.2f;
+    
+    
+    
+    
+    //[SerializeField, Tooltip("Magnitude Threshold, acts like a low pass filter.")] private float threshold = 0.2f;
     public void Start() 
     {
         coverageRadius = gameObject.transform.Find("Coverage").gameObject.transform.localScale.x / 2.0f;
@@ -45,11 +49,12 @@ public class AgentUAV : Agent
         sensor.AddObservation(uavPosition);
         
         Vector2 entityPos;
-        
+
         foreach ((GameObject entityGameObjRef, float weight) entity in objectiveSpawnerRef.entities)
         {
             entityPos = normalizePosition(new Vector2(entity.entityGameObjRef.transform.position.x, entity.entityGameObjRef.transform.position.z));
             sensor.AddObservation(entityPos);
+            sensor.AddObservation(entity.weight);
         }        
 
     }
@@ -65,7 +70,7 @@ public class AgentUAV : Agent
         float magnitude = (actions.ContinuousActions[2] + 1.0f) / (2.0f);
         
         //Apply threshold to magnitude 
-        magnitude = magnitude < threshold? 0.0f : magnitude;
+        //magnitude = magnitude < threshold? 0.0f : magnitude;
         
         Vector3 direction = Vector3.Normalize(new Vector3(actions.ContinuousActions[0], 0 , actions.ContinuousActions[1]));
         Vector3 movement = direction * magnitude * Time.deltaTime * movementSpeed;
@@ -87,7 +92,7 @@ public class AgentUAV : Agent
             return;
         }
 
-        float currentStepCoverage   = getCoverage();
+        float currentStepCoverage   = getCoverage() / objectiveSpawnerRef.weightsSum;
         stepCoverageAcc += currentStepCoverage; 
         stepMovementAcc += magnitude;
         
@@ -116,10 +121,10 @@ public class AgentUAV : Agent
           
     private bool IsDroneOutsideBoundaries()
     {
-        if  (gameObject.transform.position.x > objectiveSpawnerRef.maxX + 15 ||
-             gameObject.transform.position.x < objectiveSpawnerRef.minX - 15 ||
-             gameObject.transform.position.z > objectiveSpawnerRef.maxZ + 15 ||
-             gameObject.transform.position.z < objectiveSpawnerRef.minZ - 15)
+        if  (gameObject.transform.position.x > objectiveSpawnerRef.maxX + 10.0f ||
+             gameObject.transform.position.x < objectiveSpawnerRef.minX - 10.0f ||
+             gameObject.transform.position.z > objectiveSpawnerRef.maxZ + 10.0f ||
+             gameObject.transform.position.z < objectiveSpawnerRef.minZ - 10.0f)
         {
             return true;
         } 

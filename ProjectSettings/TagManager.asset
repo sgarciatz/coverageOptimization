@@ -5,6 +5,8 @@ TagManager:
   serializedVersion: 2
   tags:
   - CoverageArea
+  - UAV
+  - UAV_body
   layers:
   - Default
   - TransparentFX
@@ -12,10 +14,10 @@ TagManager:
   - 
   - Water
   - UI
+  - User
   - 
-  - 
-  - 
-  - 
+  - UAV
+  - Obstacle
   - 
   - 
   - 
