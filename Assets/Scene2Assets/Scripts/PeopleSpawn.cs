@@ -13,7 +13,7 @@ public class PeopleSpawn : MonoBehaviour
     
     [SerializeField] public int numberUsers;
     [SerializeField] public int numberClusters;
-    private float _padding = 0.0f;
+    private float _padding = 200.0f;
     public float padding 
     {
         get
@@ -23,6 +23,18 @@ public class PeopleSpawn : MonoBehaviour
         set
         {
             _padding = value;
+        }
+    }
+    private float _maxRadius = 100.0f;
+    public float maxRadius 
+    {
+        get
+        {
+            return _maxRadius;
+        }
+        set
+        {
+            _maxRadius = value;
         }
     }
     
@@ -58,7 +70,7 @@ public class PeopleSpawn : MonoBehaviour
         GameObject auxPerson;
         for (i = 0; i < numberClusters; i++)
         {
-            clusterRadius = Random.Range(50.0f, 150.0f);
+            clusterRadius = Random.Range(50.0f, _maxRadius);
 
             clusterCentroid = new Vector3( Random.Range(scenario.minX + clusterRadius + _padding, scenario.maxX - clusterRadius - _padding), 
                                                    0.0f,
@@ -91,7 +103,7 @@ public class PeopleSpawn : MonoBehaviour
         
         for (i = 0; i < numberClusters; i++)
         {
-            clusterRadius = Random.Range(50.0f, 200.0f);
+            clusterRadius = Random.Range(50.0f, _maxRadius);
 
             clusterCentroid = new Vector3( Random.Range(scenario.minX + clusterRadius + _padding, scenario.maxX - clusterRadius - _padding), 
                                                    0.0f,

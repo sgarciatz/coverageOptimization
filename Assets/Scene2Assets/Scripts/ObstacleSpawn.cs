@@ -11,7 +11,7 @@ public class ObstacleSpawn : MonoBehaviour
     
     [SerializeField] GameObject obstaclePrefab;
     [SerializeField] int numberObstacles;
-    private float _padding = 0.0f;
+    private float _padding = 150.0f;
     public float padding 
     {
         get

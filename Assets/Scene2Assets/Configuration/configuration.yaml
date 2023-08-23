@@ -20,7 +20,7 @@ behaviors:
       extrinsic:
         gamma: 0.995
         strength: 1.0
-    max_steps: 30000000
+    max_steps: 60000000
     time_horizon: 2500
     summary_freq: 10000
     
@@ -34,7 +34,7 @@ environment_parameters:
           behavior: CoverageControllerPPO
           signal_smoothing: false
           min_lesson_length: 100
-          threshold: 0.7
+          threshold: 1.0
 
       - name: Lesson2
         value: 50.0
@@ -43,7 +43,7 @@ environment_parameters:
           behavior: CoverageControllerPPO
           signal_smoothing: false
           min_lesson_length: 100
-          threshold: 0.8
+          threshold: 1.0
 
       - name: Lesson3
         value: 0.0
@@ -52,5 +52,34 @@ environment_parameters:
           behavior: CoverageControllerPPO
           signal_smoothing: false
           min_lesson_length: 100
-          threshold: 0.1
+          threshold: 1.0
+                  
+  maxClusterRadius:
+    curriculum:
+      - name: Lesson1
+        value: 100.0   
+        completion_criteria:
+          measure: reward
+          behavior: CoverageControllerPPO
+          signal_smoothing: false
+          min_lesson_length: 100
+          threshold: 1.0
+
+      - name: Lesson2
+        value: 150.0
+        completion_criteria:
+          measure: reward
+          behavior: CoverageControllerPPO
+          signal_smoothing: false
+          min_lesson_length: 100
+          threshold: 1.0
+
+      - name: Lesson3
+        value: 200.0
+        completion_criteria:
+          measure: reward
+          behavior: CoverageControllerPPO
+          signal_smoothing: false
+          min_lesson_length: 100
+          threshold: 1.0
 

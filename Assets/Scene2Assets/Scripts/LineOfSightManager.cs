@@ -64,7 +64,7 @@ public class LineOfSightManager : MonoBehaviour
 
     public float getPuntuation()
     {
-        castRays();
+        //castRays();
         return (float)peopleRefs.Count;
     }
     

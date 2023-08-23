@@ -6,21 +6,29 @@ public class EnvironmentManager : MonoBehaviour
     private float spawnPadding;
     private PeopleSpawn pSpawn;
     private ObstacleSpawn oSpawn;
+
+
     void Start()
     {
         pSpawn = GetComponent<PeopleSpawn>();
         oSpawn = GetComponent<ObstacleSpawn>();
-        
         float firstPadding = Academy.Instance.EnvironmentParameters.GetWithDefault("spawnPadding", 150.0f);
-        pSpawn.padding = firstPadding;
-        oSpawn.padding = firstPadding;
+        float firstMaxClusterRadius = Academy.Instance.EnvironmentParameters.GetWithDefault("maxClusterRadius", 100.0f);
+        pSpawn.padding   = firstPadding;
+        oSpawn.padding   = firstPadding;
+        pSpawn.maxRadius = firstMaxClusterRadius;
         Academy.Instance.EnvironmentParameters.RegisterCallback("spawnPadding", padding =>
         {
             Debug.Log("Updating spawns padding!");
             pSpawn.padding = padding;
             oSpawn.padding = padding;
         });
+        Academy.Instance.EnvironmentParameters.RegisterCallback("maxClusterRadius", maxClusterRadius =>
+        {
+            Debug.Log("Updating cluster radius!");
+            pSpawn.maxRadius = maxClusterRadius;
 
+        });
         
     } 
 }

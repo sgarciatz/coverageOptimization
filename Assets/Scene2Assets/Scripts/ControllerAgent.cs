@@ -97,8 +97,8 @@ public class ControllerAgent : Agent
             float outOfBoundsPenalty = -1.0f;
             float distance           = episodeMovementAcc / StepCount;
             float coverage           = episodeCoverageAcc / MaxStep;
-            float episodeReward      = outOfBoundsPenalty + coverage;
-
+            // float episodeReward      = outOfBoundsPenalty + coverage;
+            float episodeReward      = outOfBoundsPenalty + alpha * coverage + (1.0f - alpha) * (1.0f - distance);
             SetReward(episodeReward);
             foreach (LineOfSightManager uav in uavList)
             {
@@ -120,7 +120,7 @@ public class ControllerAgent : Agent
         // Accumulate the step rewards to generate the episode reward.
         episodeCoverageAcc += currentStepCoverage;
         //Save data to list 
-        saveData(currentStepCoverage, episodeCoverageAcc, episodeCoverageAcc/StepCount, stepMovement, episodeMovementAcc, episodeMovementAcc/StepCount);        
+        //saveData(currentStepCoverage, episodeCoverageAcc, episodeCoverageAcc/StepCount, stepMovement, episodeMovementAcc, episodeMovementAcc/StepCount);        
         
         if (currentStepCoverage > 0.0f)
         {
@@ -132,7 +132,7 @@ public class ControllerAgent : Agent
         {
             SetReward(-1.0f/(float)MaxStep);
         }
-        
+
         if (StepCount > 0 && StepCount % 500 == 0 && gameObject.name == "Environment") // Every 500 iterations, show accumulated reward until that moment 
         {
             Debug.Log($"(Ep. {CompletedEpisodes}, Step: {StepCount}) Coverage/Steps: {episodeCoverageAcc / StepCount}");
@@ -140,10 +140,11 @@ public class ControllerAgent : Agent
         
         if (StepCount == MaxStep) // If end of episode...
         {	
-            writeToFile("/home/santiago/Documents/Trabajo/episode_stepcount.csv");
+            //writeToFile("/home/santiago/Documents/Trabajo/data_001.csv");
             float distance           = episodeMovementAcc / MaxStep;
             float coverage           = episodeCoverageAcc / MaxStep;
-            float episodeReward      = coverage;
+            //float episodeReward      = coverage;
+            float episodeReward      = alpha * coverage + (1.0f - alpha) * (1.0f - distance);
             SetReward(episodeReward);
             if (gameObject.name == "Environment")
             {
